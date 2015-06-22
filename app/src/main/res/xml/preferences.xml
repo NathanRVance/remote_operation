@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="A category!">
+
+        <EditTextPreference
+            android:key="cik"
+            android:title="CIK for this device"
+            android:dialogTitle="I would suggest copy/paste" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
