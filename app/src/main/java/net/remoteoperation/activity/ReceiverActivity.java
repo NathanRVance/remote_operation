@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
 import net.remoteoperation.exoparser.ExoParser;
 
 /**
- * Created by nathav63 on 6/20/15.
+ * Small activity that only serves to input exo files
  */
 public class ReceiverActivity extends Activity {
 
@@ -24,11 +25,15 @@ public class ReceiverActivity extends Activity {
 
         if(Intent.ACTION_VIEW.equals(action)) {
             Uri uri = intent.getData();
-            TextView textView = (TextView) findViewById(R.id.textView);
-            if(ExoParser.parse(uri, this))
-                textView.setText("File imported successfully! You can close this window now!");
-            else
+            if(ExoParser.parse(uri, this)) {
+                Intent mainActivity = new Intent(this, MainActivity.class);
+                startActivity(mainActivity);
+            } else {
+                LinearLayout linearLayout = (LinearLayout) findViewById(R.id.main_layout);
+                TextView textView = new TextView(this);
+                linearLayout.addView(textView);
                 textView.setText("Failed to import file. Is it the wrong format?");
+            }
         }
     }
 

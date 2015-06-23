@@ -18,15 +18,8 @@
         </activity>
 
         <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/app_name" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.MainActivity" />
-        </activity>
-
-        <activity
             android:label="@string/app_name"
+            android:noHistory="true"
             android:name=".activity.ReceiverActivity" >
             <intent-filter >
                 <action android:name="android.intent.action.VIEW" />

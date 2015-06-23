@@ -2,17 +2,19 @@ package net.remoteoperation.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
+import net.remoteoperation.viewbuilder.MainViewBuilder;
 
-import java.net.URI;
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -21,9 +23,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        TextView textView = (TextView) findViewById(R.id.textView);
-        textView.setText(prefs.getString("test", "Error!"));
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.main_layout);
+        MainViewBuilder.inflateLayout(linearLayout, this);
 
     }
 
@@ -43,11 +44,15 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MainViewBuilder.inflateLayout((LinearLayout) findViewById(R.id.main_layout), this);
     }
 }
