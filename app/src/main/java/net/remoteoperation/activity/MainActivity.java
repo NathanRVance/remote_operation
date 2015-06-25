@@ -1,10 +1,12 @@
 package net.remoteoperation.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -23,15 +25,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.main_layout);
-        MainViewBuilder.inflateLayout(linearLayout, this);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.alias_item_holder);
+        MainViewBuilder.inflateLayout(linearLayout, this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -41,10 +46,15 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id) {
+            case R.id.refresh:
+                MainViewBuilder.getExositeUtil().updateItems();
+                return true;
+            case R.id.commit:
+                MainViewBuilder.getExositeUtil().commitItems();
+                return true;
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -53,6 +63,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        MainViewBuilder.inflateLayout((LinearLayout) findViewById(R.id.main_layout), this);
+        MainViewBuilder.inflateLayout((LinearLayout) findViewById(R.id.alias_item_holder), this);
     }
 }

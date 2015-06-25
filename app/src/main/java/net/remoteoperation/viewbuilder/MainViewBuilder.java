@@ -3,6 +3,7 @@ package net.remoteoperation.viewbuilder;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -10,7 +11,12 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import net.remoteoperation.R;
+import net.remoteoperation.util.ExositeUtil;
+import net.remoteoperation.viewbuilder.view.AliasItem;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by nathav63 on 6/21/15.
@@ -20,6 +26,9 @@ public class MainViewBuilder {
     private static Context context;
     private static LinearLayout linearLayout;
     private static int selection = 0;
+    private static ArrayList<AliasItem> items;
+    private static int index;
+    private static ExositeUtil exositeUtil;
 
     public static void inflateLayout(final LinearLayout linearLayout, Context context) {
         MainViewBuilder.context = context;
@@ -70,18 +79,69 @@ public class MainViewBuilder {
         }
     }
 
-    private static void populateForIndex(int index, SharedPreferences prefs) {
-        System.out.println("Populating...");
+    private static boolean populateForIndex(int index, SharedPreferences prefs) {
+        HashMap<String, String> aliasTypes = new HashMap<>();
+
+        MainViewBuilder.index = index;
+        items = new ArrayList<>();
+
         for(int i = 0; ! prefs.getString("type" + i + " " + index, "").equals(""); i++) {
-            System.out.println("Got here...");
+            
             String type = prefs.getString("type" + i + " " + index, "");
             String permissions = prefs.getString("permissions" + i + " " + index, "");
+            String title = prefs.getString("name" + i + " " + index, "");
             String alias = prefs.getString("alias" + i + " " + index, "");
+            String value = prefs.getString("value" + i + " " + index, "");
 
-            TextView textView = new TextView(context);
-            textView.setText("Type: " + type + ", Permissions: " + permissions + ", Alias: " + alias);
-            linearLayout.addView(textView);
+            if(type.equals("") || permissions.equals("") || title.equals("") || alias.equals(""))
+                return false;
+
+            aliasTypes.put(alias, type);
+
+            AliasItem item = null;
+
+            if(type.equals("int")) {
+                if(permissions.equals("r")) {
+                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.int_alias_read_only, null, false);
+                } else if(permissions.equals("w")) {
+                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.int_alias_writable, null, false);
+                }
+            } else if(type.equals("float")) {
+                if (permissions.equals("r")) {
+                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.float_alias_read_only, null, false);
+                } else if (permissions.equals("w")) {
+                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.float_alias_writable, null, false);
+                }
+            }
+
+            if(item == null)
+                return false;
+
+            item.setTitle(title);
+            item.setAlias(alias);
+
+            linearLayout.addView(item);
+            items.add(item);
         }
+        refreshViews();
+
+        exositeUtil = new ExositeUtil(context, index, aliasTypes);
+
+        return true;
+    }
+
+    public static void refreshViews() {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        for(int i = 0; i < items.size(); i++) {
+            String value = prefs.getString("value" + i + " " + index, "");
+            items.get(i).setValue(value);
+            System.out.println("Setting item " + i + " to " + value);
+        }
+    }
+
+    public static ExositeUtil getExositeUtil() {
+        return exositeUtil;
     }
 
 }

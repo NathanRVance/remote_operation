@@ -2,11 +2,15 @@ package net.remoteoperation.viewbuilder.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
+import android.widget.TextView;
+
+import net.remoteoperation.R;
 
 /**
  * Created by nathav63 on 6/23/15.
  */
-public class IntAliasWritable extends AbstractAliasItem {
+public class IntAliasWritable extends AliasItem implements NumberPickerDialog.OnNumberSetListener {
 
     public IntAliasWritable(Context context) {
         super(context);
@@ -20,5 +24,36 @@ public class IntAliasWritable extends AbstractAliasItem {
         super(context, attrs, defStyleAttr);
     }
 
+    @Override
+    protected void initViews() {
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new NumberPickerDialog(getContext(),
+                        IntAliasWritable.this, 5, 0, 100,
+                        R.string.int_writable_numberpicker_title).show();
+            }
+        });
+    }
 
+    @Override
+    public void setValue(String value) {
+        super.setValue(value);
+        TextView contents = (TextView) findViewById(R.id.contents);
+        contents.setText(value);
+    }
+
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+        TextView titleView = (TextView) findViewById(R.id.title);
+        if(titleView != null)
+            titleView.setText(title);
+    }
+
+    @Override
+    public void onNumberSet(int number) {
+        value = String.valueOf(number);
+        setValue(value);
+    }
 }
