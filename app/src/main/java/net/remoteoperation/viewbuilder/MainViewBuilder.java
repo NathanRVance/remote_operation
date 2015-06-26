@@ -81,6 +81,7 @@ public class MainViewBuilder {
 
     private static boolean populateForIndex(int index, SharedPreferences prefs) {
         HashMap<String, String> aliasTypes = new HashMap<>();
+        ArrayList<String> orderedKeys = new ArrayList<>();
 
         MainViewBuilder.index = index;
         items = new ArrayList<>();
@@ -97,6 +98,7 @@ public class MainViewBuilder {
                 return false;
 
             aliasTypes.put(alias, type);
+            orderedKeys.add(alias);
 
             AliasItem item = null;
 
@@ -119,14 +121,15 @@ public class MainViewBuilder {
 
             item.setTitle(title);
             item.setAlias(alias);
+            item.setIndex(index);
 
             linearLayout.addView(item);
             items.add(item);
         }
         refreshViews();
 
-        exositeUtil = new ExositeUtil(context, index, aliasTypes);
-
+        exositeUtil = new ExositeUtil(context, index, aliasTypes, orderedKeys);
+        exositeUtil.updateItems();
         return true;
     }
 
@@ -136,7 +139,6 @@ public class MainViewBuilder {
         for(int i = 0; i < items.size(); i++) {
             String value = prefs.getString("value" + i + " " + index, "");
             items.get(i).setValue(value);
-            System.out.println("Setting item " + i + " to " + value);
         }
     }
 

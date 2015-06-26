@@ -2,6 +2,7 @@ package net.remoteoperation.viewbuilder.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
@@ -9,7 +10,7 @@ import net.remoteoperation.R;
 /**
  * Created by nathav63 on 6/23/15.
  */
-public class FloatAliasWritable extends AliasItem {
+public class FloatAliasWritable extends AliasItem implements FloatEnterDialog.OnNumberSetListener {
 
     public FloatAliasWritable(Context context) {
         super(context);
@@ -25,7 +26,13 @@ public class FloatAliasWritable extends AliasItem {
 
     @Override
     protected void initViews() {
-
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new FloatEnterDialog(getContext(), FloatAliasWritable.this,
+                        Float.parseFloat(value), title).show();
+            }
+        });
     }
 
     @Override
@@ -33,6 +40,7 @@ public class FloatAliasWritable extends AliasItem {
         super.setValue(value);
         TextView contents = (TextView) findViewById(R.id.contents);
         contents.setText(value);
+        saveValue();
     }
 
     @Override
@@ -43,4 +51,8 @@ public class FloatAliasWritable extends AliasItem {
             titleView.setText(title);
     }
 
+    @Override
+    public void onNumberSet(float number) {
+        setValue(String.valueOf(number));
+    }
 }

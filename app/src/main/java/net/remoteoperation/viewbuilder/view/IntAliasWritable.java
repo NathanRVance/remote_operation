@@ -30,8 +30,8 @@ public class IntAliasWritable extends AliasItem implements NumberPickerDialog.On
             @Override
             public void onClick(View v) {
                 new NumberPickerDialog(getContext(),
-                        IntAliasWritable.this, 5, 0, 100,
-                        R.string.int_writable_numberpicker_title).show();
+                        IntAliasWritable.this, Integer.parseInt(value), 0, 100,
+                        title).show();
             }
         });
     }
@@ -41,6 +41,7 @@ public class IntAliasWritable extends AliasItem implements NumberPickerDialog.On
         super.setValue(value);
         TextView contents = (TextView) findViewById(R.id.contents);
         contents.setText(value);
+        saveValue();
     }
 
     @Override
@@ -53,7 +54,6 @@ public class IntAliasWritable extends AliasItem implements NumberPickerDialog.On
 
     @Override
     public void onNumberSet(int number) {
-        value = String.valueOf(number);
-        setValue(value);
+        setValue(String.valueOf(number));
     }
 }

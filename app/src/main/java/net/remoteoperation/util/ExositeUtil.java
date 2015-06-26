@@ -24,12 +24,12 @@ public class ExositeUtil {
     private Context context;
     private int index;
     private String mCIK;
-    private String[] aliases;
+    private ArrayList<String> aliases;
     private HashMap<String, String> aliasTypes;
     private SharedPreferences prefs;
 
 
-    public ExositeUtil(Context context, int index, HashMap<String, String> aliasTypes) {
+    public ExositeUtil(Context context, int index, HashMap<String, String> aliasTypes, ArrayList<String> orderedKeys) {
         this.context = context;
         this.index = index;
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -39,7 +39,7 @@ public class ExositeUtil {
         }
 
         this.aliasTypes = aliasTypes;
-        this.aliases = aliasTypes.keySet().toArray(new String[aliasTypes.size()]);
+        this.aliases = orderedKeys;
 
     }
 
@@ -48,9 +48,9 @@ public class ExositeUtil {
     }
 
     public void commitItems() {
-        String[] values = new String[aliases.length * 2];
-        for(int i = 0; i < aliases.length; i++) {
-            values[i*2] = aliases[i];
+        String[] values = new String[aliases.size() * 2];
+        for(int i = 0; i < aliases.size(); i++) {
+            values[i*2] = aliases.get(i);
             values[i*2+1] = prefs.getString("value" + i + " " + index, "");
         }
         new WriteTask().execute(values);
@@ -79,7 +79,7 @@ public class ExositeUtil {
                     requestBody += "{\"id\":\"" + alias + "\",\"procedure\":\"read\","
                             + "\"arguments\":[{\"alias\":\"" + alias + "\"},"
                             + "{\"limit\":1,\"sort\":\"desc\"}]}";
-                    if (alias != aliases[aliases.length - 1]) {
+                    if (alias != aliases.get(aliases.size() - 1)) {
                         requestBody += ',';
                     }
                 }
@@ -125,7 +125,7 @@ public class ExositeUtil {
             if (results != null) {
                 for(int i = 0; i < results.size(); i++) {
                     Result result = results.get(i);
-                    String alias = aliases[i];
+                    String alias = aliases.get(i);
                     if (result.getResult() instanceof JSONArray) {
                         try {
                             JSONArray points = ((JSONArray)result.getResult());
@@ -141,7 +141,6 @@ public class ExositeUtil {
                                 }
                                 if(value != null) {
                                     editor.putString("value" + i + " " + index, value);
-                                    System.out.println("value" + i + " " + index + " : " + value);
                                 }
                             } else {
                                 hasError = true;

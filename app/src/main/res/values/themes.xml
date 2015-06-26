@@ -7,10 +7,6 @@
         <!-- colorPrimaryDark is used for the status bar -->
         <item name="colorPrimaryDark">@color/material_blue_grey_900</item>
 
-        <!-- colorAccent is used as the default value for colorControlActivated,
-             which is used to tint widgets -->
-        <item name="colorAccent">@color/darkblue</item>
-
         <item name="android:textColor">@color/black</item>
 
     </style>
