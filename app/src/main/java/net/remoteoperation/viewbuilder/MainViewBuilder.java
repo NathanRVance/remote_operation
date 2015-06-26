@@ -1,8 +1,6 @@
 package net.remoteoperation.viewbuilder;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,6 +11,7 @@ import android.widget.TextView;
 
 import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeUtil;
+import net.remoteoperation.util.Prefs;
 import net.remoteoperation.viewbuilder.view.AliasItem;
 
 import java.util.ArrayList;
@@ -30,15 +29,16 @@ public class MainViewBuilder {
     private static int index;
     private static ExositeUtil exositeUtil;
 
+    private static final int TITLE_SIZE = 20;
+
     public static void inflateLayout(final LinearLayout linearLayout, Context context) {
         MainViewBuilder.context = context;
         MainViewBuilder.linearLayout = linearLayout;
         linearLayout.removeAllViews();
 
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         ArrayList<String> cik = new ArrayList<>();
-        for(int i = 0; ! prefs.getString("title" + i, "").equals(""); i++) {
-            cik.add(prefs.getString("title" + i, ""));
+        for(int i = 0; ! Prefs.getCIKTitle(i).equals(""); i++) {
+            cik.add(Prefs.getCIKTitle(i));
         }
 
         if(cik.size() > 1) {
@@ -50,7 +50,7 @@ public class MainViewBuilder {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     linearLayout.removeAllViews();
                     linearLayout.addView(spinner);
-                    populateForIndex(selection = position, prefs);
+                    populateForIndex(selection = position);
                 }
 
                 @Override
@@ -63,36 +63,38 @@ public class MainViewBuilder {
 
             linearLayout.removeAllViews();
             linearLayout.addView(spinner);
-            populateForIndex((selection < cik.size())? selection : cik.size()-1, prefs);
+            populateForIndex((selection < cik.size())? selection : cik.size()-1);
 
         } else if(cik.size() == 1) {
 
             TextView textView = new TextView(context);
+            textView.setTextSize(TITLE_SIZE);
             linearLayout.addView(textView);
             textView.setText(cik.get(0));
-            populateForIndex(selection = 0, prefs);
+            populateForIndex(selection = 0);
 
         } else { //empty
             TextView textView = new TextView(context);
+            textView.setTextSize(TITLE_SIZE);
             linearLayout.addView(textView);
             textView.setText("Import .exo files by opening them with this app!");
         }
     }
 
-    private static boolean populateForIndex(int index, SharedPreferences prefs) {
+    private static boolean populateForIndex(int index) {
         HashMap<String, String> aliasTypes = new HashMap<>();
         ArrayList<String> orderedKeys = new ArrayList<>();
 
         MainViewBuilder.index = index;
         items = new ArrayList<>();
 
-        for(int i = 0; ! prefs.getString("type" + i + " " + index, "").equals(""); i++) {
+        for(int i = 0; ! Prefs.getType(i, index).equals(""); i++) {
             
-            String type = prefs.getString("type" + i + " " + index, "");
-            String permissions = prefs.getString("permissions" + i + " " + index, "");
-            String title = prefs.getString("name" + i + " " + index, "");
-            String alias = prefs.getString("alias" + i + " " + index, "");
-            String value = prefs.getString("value" + i + " " + index, "");
+            String type = Prefs.getType(i, index);
+            String permissions = Prefs.getPermissions(i, index);
+            String title = Prefs.getName(i, index);
+            String alias = Prefs.getAlias(i, index);
+            String value = Prefs.getValue(i, index);
 
             if(type.equals("") || permissions.equals("") || title.equals("") || alias.equals(""))
                 return false;
@@ -134,12 +136,14 @@ public class MainViewBuilder {
     }
 
     public static void refreshViews() {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
         for(int i = 0; i < items.size(); i++) {
-            String value = prefs.getString("value" + i + " " + index, "");
+            String value = Prefs.getValue(i, index);
             items.get(i).setValue(value);
         }
+    }
+
+    public static int getIndex() {
+        return index;
     }
 
     public static ExositeUtil getExositeUtil() {

@@ -11,4 +11,9 @@
         android:id="@+id/commit"
         app:showAsAction="always"/>
 
+    <item
+        android:title="Delete current CIK"
+        android:id="@+id/delete"
+        app:showAsAction="never"/>
+
 </menu>

@@ -23,7 +23,7 @@ public class ExositeUtil {
 
     private Context context;
     private int index;
-    private String mCIK;
+    private String CIK;
     private ArrayList<String> aliases;
     private HashMap<String, String> aliasTypes;
     private SharedPreferences prefs;
@@ -33,8 +33,8 @@ public class ExositeUtil {
         this.context = context;
         this.index = index;
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        this.mCIK = prefs.getString("cik" + index, "");
-        if(mCIK.equals("")) {
+        this.CIK = Prefs.getCIK(index);
+        if(CIK.equals("")) {
             throw new RuntimeException("null cik");
         }
 
@@ -73,7 +73,7 @@ public class ExositeUtil {
             OnePlatformRPC rpc = new OnePlatformRPC();
             String responseBody = null;
             try {
-                String requestBody = "{\"auth\":{\"cik\":\"" + mCIK
+                String requestBody = "{\"auth\":{\"cik\":\"" + CIK
                         + "\"},\"calls\":[";
                 for (String alias: aliases) {
                     requestBody += "{\"id\":\"" + alias + "\",\"procedure\":\"read\","
@@ -176,7 +176,7 @@ public class ExositeUtil {
             OnePlatformRPC rpc = new OnePlatformRPC();
             String responseBody = null;
             try {
-                String requestBody = "{\"auth\":{\"cik\":\"" + mCIK
+                String requestBody = "{\"auth\":{\"cik\":\"" + CIK
                         + "\"},\"calls\":[";
                 for (int i = 0; i < values.length; i += 2) {
                     String alias = values[i];

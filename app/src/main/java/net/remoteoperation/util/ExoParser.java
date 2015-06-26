@@ -1,9 +1,7 @@
 package net.remoteoperation.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -27,8 +25,6 @@ public class ExoParser {
         }
 
         String[] lines = contents.split("\n");
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = prefs.edit();
 
         String[] words = lines[0].split(" ");
 
@@ -37,31 +33,30 @@ public class ExoParser {
         }
 
         int index;
-        for(index = 0; ! (prefs.getString("cik" + index, "").equals("") || prefs.getString("cik" + index, "").equals(words[0])); index++);
+        for(index = 0; ! (Prefs.getCIK(index).equals("") || Prefs.getCIK(index).equals(words[0])); index++);
 
-        editor.putString("cik" + index, words[0]);
+        Prefs.putCIK(words[0], index);
         StringBuilder sb = new StringBuilder();
         for(int i = 1; i < words.length; i++) {
             sb.append(words[i]).append(" ");
         }
         sb.deleteCharAt(sb.length()-1);
-        editor.putString("title" + index, sb.toString());
+        Prefs.putCIKTitle(sb.toString(), index);
 
         for(int i = 1; i < lines.length; i++)
         {
             words = lines[i].split(" ");
-            editor.putString("type" + (i-1) + " " + index, words[0]);
-            editor.putString("permissions" + (i-1) + " " + index, words[1]);
-            editor.putString("alias" + (i-1) + " " + index, words[2]);
+            Prefs.putType(words[0], (i-1), index);
+            Prefs.putPermissions(words[1], (i-1), index);
+            Prefs.putAlias(words[2], (i-1), index);
             sb = new StringBuilder();
             for(int j = 3; j < words.length; j++) {
                 sb.append(words[j]).append(" ");
             }
             sb.deleteCharAt(sb.length()-1);
-            editor.putString("name" + (i-1) + " " + index, sb.toString());
+            Prefs.putName(sb.toString(), (i-1), index);
         }
 
-        editor.commit();
         return true;
     }
 

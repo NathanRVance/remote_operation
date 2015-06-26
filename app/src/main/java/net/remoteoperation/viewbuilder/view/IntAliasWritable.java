@@ -30,7 +30,8 @@ public class IntAliasWritable extends AliasItem implements NumberPickerDialog.On
             @Override
             public void onClick(View v) {
                 new NumberPickerDialog(getContext(),
-                        IntAliasWritable.this, Integer.parseInt(value), 0, 100,
+                        IntAliasWritable.this, Integer.parseInt(value),
+                        0, Integer.parseInt(value) + 1000,
                         title).show();
             }
         });

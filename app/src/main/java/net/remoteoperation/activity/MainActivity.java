@@ -1,22 +1,15 @@
 package net.remoteoperation.activity;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import net.remoteoperation.R;
+import net.remoteoperation.util.Prefs;
 import net.remoteoperation.viewbuilder.MainViewBuilder;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Prefs.init(this);
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -52,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.commit:
                 MainViewBuilder.getExositeUtil().commitItems();
+                return true;
+            case R.id.delete:
+                Prefs.deleteCIK(MainViewBuilder.getIndex());
+                MainViewBuilder.inflateLayout((LinearLayout) findViewById(R.id.alias_item_holder), this);
                 return true;
             default:
                 break;

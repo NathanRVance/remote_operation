@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import net.remoteoperation.R;
 import net.remoteoperation.util.ExoParser;
+import net.remoteoperation.util.Prefs;
 
 /**
  * Small activity that only serves to input exo files
@@ -17,6 +18,8 @@ public class ReceiverActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Prefs.init(this);
 
         setContentView(R.layout.activity_main);
         final Intent intent = getIntent();
