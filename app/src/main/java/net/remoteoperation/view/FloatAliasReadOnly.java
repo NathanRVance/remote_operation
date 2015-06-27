@@ -32,7 +32,7 @@ public class FloatAliasReadOnly extends AliasItem {
     public void setValue(String value) {
         super.setValue(value);
         TextView contents = (TextView) findViewById(R.id.contents);
-        contents.setText(value);
+        contents.setText(this.value);
     }
 
     @Override

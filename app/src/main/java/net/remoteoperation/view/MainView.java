@@ -147,6 +147,7 @@ public class MainView extends LinearLayout {
         for(int i = 0; i < items.size(); i++) {
             String value = Prefs.getValue(i, index);
             items.get(i).setValue(value);
+            System.out.println("Refreshed item " + i + "To [" + value +"]");
         }
     }
 

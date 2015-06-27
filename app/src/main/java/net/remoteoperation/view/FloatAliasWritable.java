@@ -29,8 +29,9 @@ public class FloatAliasWritable extends AliasItem implements FloatEnterDialog.On
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                new FloatEnterDialog(getContext(), FloatAliasWritable.this,
-                        Float.parseFloat(value), title).show();
+                if (! value.equals(ERROR_MESSAGE))
+                    new FloatEnterDialog(getContext(), FloatAliasWritable.this,
+                            Float.parseFloat(value), title).show();
             }
         });
     }
@@ -39,7 +40,7 @@ public class FloatAliasWritable extends AliasItem implements FloatEnterDialog.On
     public void setValue(String value) {
         super.setValue(value);
         TextView contents = (TextView) findViewById(R.id.contents);
-        contents.setText(value);
+        contents.setText(this.value);
         saveValue();
     }
 
@@ -47,7 +48,7 @@ public class FloatAliasWritable extends AliasItem implements FloatEnterDialog.On
     public void setTitle(String title) {
         super.setTitle(title);
         TextView titleView = (TextView) findViewById(R.id.title);
-        if(titleView != null)
+        if (titleView != null)
             titleView.setText(title);
     }
 

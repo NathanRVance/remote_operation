@@ -16,6 +16,8 @@ public abstract class AliasItem extends LinearLayout {
     protected String value;
     protected int index;
 
+    protected final static String ERROR_MESSAGE = "ERROR: Uninitialized on server side";
+
     public AliasItem(Context context) {
         super(context);
     }
@@ -43,18 +45,22 @@ public abstract class AliasItem extends LinearLayout {
         this.index = index;
     }
     public void setValue(String value) {
-        this.value = value;
+        if(value.equals(""))
+            this.value = ERROR_MESSAGE;
+        else
+            this.value = value;
     }
 
     protected abstract void initViews();
 
     protected void saveValue() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int i;
-        for(i = 0; ! prefs.getString("alias" + i + " " + index, "").equals(alias); i++);
-        SharedPreferences.Editor editor =  prefs.edit();
-        editor.putString("value" + i + " " + index, value);
-        editor.commit();
+        if(! value.equals(ERROR_MESSAGE)) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            int i;
+            for (i = 0; !prefs.getString("alias" + i + " " + index, "").equals(alias); i++) ;
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("value" + i + " " + index, value);
+            editor.commit();
+        }
     }
-
 }
