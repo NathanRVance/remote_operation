@@ -1,7 +1,8 @@
-package net.remoteoperation.viewbuilder.view;
+package net.remoteoperation.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
@@ -9,23 +10,29 @@ import net.remoteoperation.R;
 /**
  * Created by nathav63 on 6/23/15.
  */
-public class IntAliasReadOnly extends AliasItem {
+public class FloatAliasWritable extends AliasItem implements FloatEnterDialog.OnNumberSetListener {
 
-    public IntAliasReadOnly(Context context) {
+    public FloatAliasWritable(Context context) {
         super(context);
     }
 
-    public IntAliasReadOnly(Context context, AttributeSet attrs) {
+    public FloatAliasWritable(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public IntAliasReadOnly(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FloatAliasWritable(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @Override
     protected void initViews() {
-
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new FloatEnterDialog(getContext(), FloatAliasWritable.this,
+                        Float.parseFloat(value), title).show();
+            }
+        });
     }
 
     @Override
@@ -33,6 +40,7 @@ public class IntAliasReadOnly extends AliasItem {
         super.setValue(value);
         TextView contents = (TextView) findViewById(R.id.contents);
         contents.setText(value);
+        saveValue();
     }
 
     @Override
@@ -43,4 +51,8 @@ public class IntAliasReadOnly extends AliasItem {
             titleView.setText(title);
     }
 
+    @Override
+    public void onNumberSet(float number) {
+        setValue(String.valueOf(number));
+    }
 }

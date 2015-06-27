@@ -1,4 +1,4 @@
-package net.remoteoperation.viewbuilder.view;
+package net.remoteoperation.view;
 
 /*
  * Copyright (C) 2007 The Android Open Source Project
@@ -16,18 +16,18 @@ package net.remoteoperation.viewbuilder.view;
  * limitations under the License.
  */
 
-        import android.app.AlertDialog;
-        import android.content.Context;
-        import android.content.DialogInterface;
-        import android.content.DialogInterface.OnClickListener;
-        import android.os.Bundle;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.widget.NumberPicker;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
-        import net.remoteoperation.R;
+import net.remoteoperation.R;
 
-public class NumberPickerDialog extends AlertDialog implements OnClickListener {
+public class FloatEnterDialog extends AlertDialog implements OnClickListener {
     private static final String NUMBER = "number";
 
     /**
@@ -39,10 +39,10 @@ public class NumberPickerDialog extends AlertDialog implements OnClickListener {
         /**
          * @param number The number that was set.
          */
-        void onNumberSet(int number);
+        void onNumberSet(float number);
     }
 
-    private final NumberPicker mNumberPicker;
+    private final EditText mEditText;
     private final OnNumberSetListener mCallback;
 
     /**
@@ -50,13 +50,11 @@ public class NumberPickerDialog extends AlertDialog implements OnClickListener {
      * @param callBack How parent is notified.
      * @param number The initial number.
      */
-    public NumberPickerDialog(Context context,
-                              OnNumberSetListener callBack,
-                              int number,
-                              int rangeMin,
-                              int rangeMax,
-                              String title) {
-        this(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, callBack, number, rangeMin, rangeMax, title);
+    public FloatEnterDialog(Context context,
+                            OnNumberSetListener callBack,
+                            float number,
+                            String title) {
+        this(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, callBack, number, title);
     }
 
     /**
@@ -65,13 +63,11 @@ public class NumberPickerDialog extends AlertDialog implements OnClickListener {
      * @param callBack How parent is notified.
      * @param number The initial number.
      */
-    public NumberPickerDialog(Context context,
-                              int theme,
-                              OnNumberSetListener callBack,
-                              int number,
-                              int rangeMin,
-                              int rangeMax,
-                              String title) {
+    public FloatEnterDialog(Context context,
+                            int theme,
+                            OnNumberSetListener callBack,
+                            float number,
+                            String title) {
         super(context, theme);
         mCallback = callBack;
 
@@ -83,23 +79,18 @@ public class NumberPickerDialog extends AlertDialog implements OnClickListener {
 
         LayoutInflater inflater =
                 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.number_picker_dialog, null);
+        View view = inflater.inflate(R.layout.float_enter_dialog, null);
         setView(view);
-        mNumberPicker = (NumberPicker) view.findViewById(R.id.number_picker);
+        mEditText = (EditText) view.findViewById(R.id.edit_text);
 
         // initialize state
-        mNumberPicker.setMinValue(rangeMin);
-        mNumberPicker.setMaxValue(rangeMax);
-        mNumberPicker.setValue(number);
-        mNumberPicker.setOnLongPressUpdateInterval(100); // make the repeat rate three times as fast
-        // as normal since the range is so large.
-        mNumberPicker.setWrapSelectorWheel(false);       // don't wrap from min->max
+        mEditText.setText(String.valueOf(number));
     }
 
     public void onClick(DialogInterface dialog, int which) {
         if (mCallback != null) {
-            mNumberPicker.clearFocus();
-            mCallback.onNumberSet(mNumberPicker.getValue());
+            mEditText.clearFocus();
+            mCallback.onNumberSet(Float.parseFloat(mEditText.getText().toString()));
             dialog.dismiss();
         }
     }
@@ -107,14 +98,14 @@ public class NumberPickerDialog extends AlertDialog implements OnClickListener {
     @Override
     public Bundle onSaveInstanceState() {
         Bundle state = super.onSaveInstanceState();
-        state.putInt(NUMBER, mNumberPicker.getValue());
+        state.putFloat(NUMBER, Float.parseFloat(mEditText.getText().toString()));
         return state;
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        int number = savedInstanceState.getInt(NUMBER);
-        mNumberPicker.setValue(number);
+        float number = savedInstanceState.getFloat(NUMBER);
+        mEditText.setText(String.valueOf(number));
     }
 }

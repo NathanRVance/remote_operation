@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.remoteoperation.viewbuilder.MainViewBuilder;
+import net.remoteoperation.view.MainView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,9 +27,11 @@ public class ExositeUtil {
     private ArrayList<String> aliases;
     private HashMap<String, String> aliasTypes;
     private SharedPreferences prefs;
+    private MainView mainView;
 
 
-    public ExositeUtil(Context context, int index, HashMap<String, String> aliasTypes, ArrayList<String> orderedKeys) {
+    public ExositeUtil(Context context, int index, HashMap<String, String> aliasTypes,
+                       ArrayList<String> orderedKeys, MainView mainView) {
         this.context = context;
         this.index = index;
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -40,7 +42,7 @@ public class ExositeUtil {
 
         this.aliasTypes = aliasTypes;
         this.aliases = orderedKeys;
-
+        this.mainView = mainView;
     }
 
     public void updateItems() {
@@ -57,7 +59,7 @@ public class ExositeUtil {
     }
 
     public void callback() {
-        MainViewBuilder.refreshViews();
+        mainView.refreshViews();
     }
 
     private void postErrorMessage(String message) {

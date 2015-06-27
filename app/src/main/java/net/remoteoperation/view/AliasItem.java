@@ -1,4 +1,4 @@
-package net.remoteoperation.viewbuilder.view;
+package net.remoteoperation.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;

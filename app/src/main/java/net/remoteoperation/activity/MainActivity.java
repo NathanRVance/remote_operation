@@ -5,14 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 
 import net.remoteoperation.R;
 import net.remoteoperation.util.Prefs;
-import net.remoteoperation.viewbuilder.MainViewBuilder;
-
+import net.remoteoperation.view.MainView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private MainView mainView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.alias_item_holder);
-        MainViewBuilder.inflateLayout(linearLayout, this);
+        mainView = (MainView) findViewById(R.id.main_view);
+        mainView.initView();
     }
 
     @Override
@@ -43,14 +43,14 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch(id) {
             case R.id.refresh:
-                MainViewBuilder.getExositeUtil().updateItems();
+                mainView.getExositeUtil().updateItems();
                 return true;
             case R.id.commit:
-                MainViewBuilder.getExositeUtil().commitItems();
+                mainView.getExositeUtil().commitItems();
                 return true;
             case R.id.delete:
-                Prefs.deleteCIK(MainViewBuilder.getIndex());
-                MainViewBuilder.inflateLayout((LinearLayout) findViewById(R.id.alias_item_holder), this);
+                Prefs.deleteCIK(mainView.getIndex());
+                mainView.initView();
                 return true;
             default:
                 break;
@@ -62,6 +62,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        MainViewBuilder.inflateLayout((LinearLayout) findViewById(R.id.alias_item_holder), this);
+        mainView.initView();
     }
 }

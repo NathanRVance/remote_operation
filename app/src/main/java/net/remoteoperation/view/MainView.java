@@ -1,6 +1,7 @@
-package net.remoteoperation.viewbuilder;
+package net.remoteoperation.view;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeUtil;
 import net.remoteoperation.util.Prefs;
-import net.remoteoperation.viewbuilder.view.AliasItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,21 +20,29 @@ import java.util.HashMap;
 /**
  * Created by nathav63 on 6/21/15.
  */
-public class MainViewBuilder {
+public class MainView extends LinearLayout {
 
-    private static Context context;
-    private static LinearLayout linearLayout;
-    private static int selection = 0;
-    private static ArrayList<AliasItem> items;
-    private static int index;
-    private static ExositeUtil exositeUtil;
+    private int selection = 0;
+    private ArrayList<AliasItem> items;
+    private int index;
+    private ExositeUtil exositeUtil;
 
     private static final int TITLE_SIZE = 20;
 
-    public static void inflateLayout(final LinearLayout linearLayout, Context context) {
-        MainViewBuilder.context = context;
-        MainViewBuilder.linearLayout = linearLayout;
-        linearLayout.removeAllViews();
+    public MainView(Context context) {
+        super(context);
+    }
+
+    public MainView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public MainView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void initView() {
+        removeAllViews();
 
         ArrayList<String> cik = new ArrayList<>();
         for(int i = 0; ! Prefs.getCIKTitle(i).equals(""); i++) {
@@ -42,50 +50,50 @@ public class MainViewBuilder {
         }
 
         if(cik.size() > 1) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, cik);
-            final Spinner spinner = new Spinner(context);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, cik);
+            final Spinner spinner = new Spinner(getContext());
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    linearLayout.removeAllViews();
-                    linearLayout.addView(spinner);
+                    removeAllViews();
+                    addView(spinner);
                     populateForIndex(selection = position);
                 }
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-                    linearLayout.removeAllViews();
-                    linearLayout.addView(spinner);
+                    removeAllViews();
+                    addView(spinner);
                     System.out.println("Nothing selected.");
                 }
             });
 
-            linearLayout.removeAllViews();
-            linearLayout.addView(spinner);
+            removeAllViews();
+            addView(spinner);
             populateForIndex((selection < cik.size())? selection : cik.size()-1);
 
         } else if(cik.size() == 1) {
 
-            TextView textView = new TextView(context);
+            TextView textView = new TextView(getContext());
             textView.setTextSize(TITLE_SIZE);
-            linearLayout.addView(textView);
+            addView(textView);
             textView.setText(cik.get(0));
             populateForIndex(selection = 0);
 
         } else { //empty
-            TextView textView = new TextView(context);
+            TextView textView = new TextView(getContext());
             textView.setTextSize(TITLE_SIZE);
-            linearLayout.addView(textView);
+            addView(textView);
             textView.setText("Import .exo files by opening them with this app!");
         }
     }
 
-    private static boolean populateForIndex(int index) {
+    private boolean populateForIndex(int index) {
         HashMap<String, String> aliasTypes = new HashMap<>();
         ArrayList<String> orderedKeys = new ArrayList<>();
 
-        MainViewBuilder.index = index;
+        this.index = index;
         items = new ArrayList<>();
 
         for(int i = 0; ! Prefs.getType(i, index).equals(""); i++) {
@@ -106,15 +114,15 @@ public class MainViewBuilder {
 
             if(type.equals("int")) {
                 if(permissions.equals("r")) {
-                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.int_alias_read_only, null, false);
+                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.int_alias_read_only, null, false);
                 } else if(permissions.equals("w")) {
-                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.int_alias_writable, null, false);
+                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.int_alias_writable, null, false);
                 }
             } else if(type.equals("float")) {
                 if (permissions.equals("r")) {
-                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.float_alias_read_only, null, false);
+                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.float_alias_read_only, null, false);
                 } else if (permissions.equals("w")) {
-                    item = (AliasItem) LayoutInflater.from(context).inflate(R.layout.float_alias_writable, null, false);
+                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.float_alias_writable, null, false);
                 }
             }
 
@@ -125,28 +133,28 @@ public class MainViewBuilder {
             item.setAlias(alias);
             item.setIndex(index);
 
-            linearLayout.addView(item);
+            addView(item);
             items.add(item);
         }
         refreshViews();
 
-        exositeUtil = new ExositeUtil(context, index, aliasTypes, orderedKeys);
+        exositeUtil = new ExositeUtil(getContext(), index, aliasTypes, orderedKeys, this);
         exositeUtil.updateItems();
         return true;
     }
 
-    public static void refreshViews() {
+    public void refreshViews() {
         for(int i = 0; i < items.size(); i++) {
             String value = Prefs.getValue(i, index);
             items.get(i).setValue(value);
         }
     }
 
-    public static int getIndex() {
+    public int getIndex() {
         return index;
     }
 
-    public static ExositeUtil getExositeUtil() {
+    public ExositeUtil getExositeUtil() {
         return exositeUtil;
     }
 

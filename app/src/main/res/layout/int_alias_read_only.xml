@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.remoteoperation.viewbuilder.view.IntAliasReadOnly xmlns:android="http://schemas.android.com/apk/res/android"
+<net.remoteoperation.view.IntAliasReadOnly xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/vertical_button_padding"
@@ -16,4 +16,4 @@
         android:layout_height="wrap_content"
         android:id="@+id/contents" />
 
-</net.remoteoperation.viewbuilder.view.IntAliasReadOnly>
+</net.remoteoperation.view.IntAliasReadOnly>

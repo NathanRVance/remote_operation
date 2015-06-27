@@ -1,4 +1,4 @@
-package net.remoteoperation.viewbuilder.view;
+package net.remoteoperation.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -9,17 +9,17 @@ import net.remoteoperation.R;
 /**
  * Created by nathav63 on 6/23/15.
  */
-public class FloatAliasReadOnly extends AliasItem {
+public class IntAliasReadOnly extends AliasItem {
 
-    public FloatAliasReadOnly(Context context) {
+    public IntAliasReadOnly(Context context) {
         super(context);
     }
 
-    public FloatAliasReadOnly(Context context, AttributeSet attrs) {
+    public IntAliasReadOnly(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public FloatAliasReadOnly(Context context, AttributeSet attrs, int defStyleAttr) {
+    public IntAliasReadOnly(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
