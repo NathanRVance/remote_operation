@@ -15,6 +15,10 @@ import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeUtil;
 import net.remoteoperation.util.Prefs;
 import net.remoteoperation.view.adapter.MainListAdapter;
+import net.remoteoperation.view.listener.FloatAliasReadOnly;
+import net.remoteoperation.view.listener.FloatAliasWritable;
+import net.remoteoperation.view.listener.IntAliasReadOnly;
+import net.remoteoperation.view.listener.IntAliasWritable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,51 +115,41 @@ public class MainView extends LinearLayout {
             aliasTypes.put(alias, type);
             orderedKeys.add(alias);
 
-            AliasItem item = null;
+            AliasItem item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
 
             if(type.equals("int")) {
                 if(permissions.equals("r")) {
-                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.int_alias_read_only, null, false);
+                    item.setOnClickListener(new IntAliasReadOnly());
                 } else if(permissions.equals("w")) {
-                    //item = new IntAliasReadOnly(getContext());
-                    //item.addView(LayoutInflater.from(getContext()).inflate(R.layout.alias_item, item, true));
-                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.int_alias_writable, null, false);
+                    item.setOnClickListener(new IntAliasWritable());
                 }
             } else if(type.equals("float")) {
                 if (permissions.equals("r")) {
-                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.float_alias_read_only, null, false);
+                    item.setOnClickListener(new FloatAliasReadOnly());
                 } else if (permissions.equals("w")) {
-                    item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.float_alias_writable, null, false);
+                    item.setOnClickListener(new FloatAliasWritable());
                 }
             }
-
-            if(item == null)
-                return false;
 
             item.setTitle(title);
             item.setAlias(alias);
             item.setIndex(index);
 
-            //addView(item);
             items.add(item);
         }
 
-        addView(getList());
+        ListView listView = new ListView(getContext());
+        AliasItem[] aliases = new AliasItem[items.size()];
+        MainListAdapter adapter = new MainListAdapter(getContext(), items.toArray(aliases));
+        listView.setAdapter(adapter);
+
+        addView(listView);
 
         refreshViews();
 
         exositeUtil = new ExositeUtil(getContext(), index, aliasTypes, orderedKeys, this);
         exositeUtil.updateItems();
         return true;
-    }
-
-    private ListView getList() {
-        ListView listView = new ListView(getContext());
-        AliasItem[] aliases = new AliasItem[items.size()];
-        MainListAdapter adapter = new MainListAdapter(getContext(), items.toArray(aliases));
-        listView.setAdapter(adapter);
-
-        return listView;
     }
 
     public void refreshViews() {

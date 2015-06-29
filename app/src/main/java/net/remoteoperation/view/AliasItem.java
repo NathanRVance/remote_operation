@@ -3,20 +3,22 @@ package net.remoteoperation.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import net.remoteoperation.R;
 import net.remoteoperation.util.Prefs;
 
 /**
  * Created by nathav63 on 6/23/15.
  */
-public abstract class AliasItem extends LinearLayout {
+public class AliasItem extends LinearLayout {
 
-    protected String title;
-    protected String alias;
-    protected String value;
-    protected int index;
+    public String title;
+    public String alias;
+    public String value;
+    public int index;
 
-    protected final static String ERROR_MESSAGE = "ERROR: Uninitialized on server side";
+    public final static String ERROR_MESSAGE = "ERROR: Uninitialized on server side";
 
     public AliasItem(Context context) {
         super(context);
@@ -30,28 +32,30 @@ public abstract class AliasItem extends LinearLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    @Override
-    protected void onFinishInflate() {
-        initViews();
-    }
-
     public void setTitle(String title) {
         this.title = title;
+
+        TextView titleView = (TextView) findViewById(R.id.title);
+        if(titleView != null) titleView.setText(title);
     }
+
     public void setAlias(String alias) {
         this.alias = alias;
     }
     public void setIndex(int index) {
         this.index = index;
     }
+
     public void setValue(String value) {
         if(value.equals(""))
             this.value = ERROR_MESSAGE;
         else
             this.value = value;
-    }
 
-    protected abstract void initViews();
+        TextView contents = (TextView) findViewById(R.id.contents);
+        contents.setText(this.value);
+        saveValue();
+    }
 
     protected void saveValue() {
         if(! value.equals(ERROR_MESSAGE)) {
