@@ -7,12 +7,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeUtil;
 import net.remoteoperation.util.Prefs;
+import net.remoteoperation.view.adapter.MainListAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,7 +104,6 @@ public class MainView extends LinearLayout {
             String permissions = Prefs.getPermissions(i, index);
             String title = Prefs.getName(i, index);
             String alias = Prefs.getAlias(i, index);
-            String value = Prefs.getValue(i, index);
 
             if(type.equals("") || permissions.equals("") || title.equals("") || alias.equals(""))
                 return false;
@@ -116,6 +117,8 @@ public class MainView extends LinearLayout {
                 if(permissions.equals("r")) {
                     item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.int_alias_read_only, null, false);
                 } else if(permissions.equals("w")) {
+                    //item = new IntAliasReadOnly(getContext());
+                    //item.addView(LayoutInflater.from(getContext()).inflate(R.layout.alias_item, item, true));
                     item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.int_alias_writable, null, false);
                 }
             } else if(type.equals("float")) {
@@ -133,9 +136,12 @@ public class MainView extends LinearLayout {
             item.setAlias(alias);
             item.setIndex(index);
 
-            addView(item);
+            //addView(item);
             items.add(item);
         }
+
+        addView(getList());
+
         refreshViews();
 
         exositeUtil = new ExositeUtil(getContext(), index, aliasTypes, orderedKeys, this);
@@ -143,11 +149,19 @@ public class MainView extends LinearLayout {
         return true;
     }
 
+    private ListView getList() {
+        ListView listView = new ListView(getContext());
+        AliasItem[] aliases = new AliasItem[items.size()];
+        MainListAdapter adapter = new MainListAdapter(getContext(), items.toArray(aliases));
+        listView.setAdapter(adapter);
+
+        return listView;
+    }
+
     public void refreshViews() {
         for(int i = 0; i < items.size(); i++) {
             String value = Prefs.getValue(i, index);
             items.get(i).setValue(value);
-            System.out.println("Refreshed item " + i + "To [" + value +"]");
         }
     }
 

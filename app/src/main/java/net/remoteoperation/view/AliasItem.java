@@ -1,10 +1,10 @@
 package net.remoteoperation.view;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
+import net.remoteoperation.util.Prefs;
 
 /**
  * Created by nathav63 on 6/23/15.
@@ -55,12 +55,11 @@ public abstract class AliasItem extends LinearLayout {
 
     protected void saveValue() {
         if(! value.equals(ERROR_MESSAGE)) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             int i;
-            for (i = 0; !prefs.getString("alias" + i + " " + index, "").equals(alias); i++) ;
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("value" + i + " " + index, value);
-            editor.commit();
+            for (i = 0; !Prefs.getAlias(i, index).equals(""); i++) {
+                if(Prefs.getAlias(i, index).equals(alias))
+                    Prefs.putValue(value, i, index);
+            }
         }
     }
 }

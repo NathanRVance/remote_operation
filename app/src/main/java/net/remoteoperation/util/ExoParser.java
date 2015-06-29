@@ -35,6 +35,7 @@ public class ExoParser {
         int index;
         for(index = 0; ! (Prefs.getCIK(index).equals("") || Prefs.getCIK(index).equals(words[0])); index++);
 
+        Prefs.deleteCIK(index); //in case it's a matching CIK and this one will be shorter
         Prefs.putCIK(words[0], index);
         StringBuilder sb = new StringBuilder();
         for(int i = 1; i < words.length; i++) {
