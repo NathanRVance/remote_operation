@@ -21,7 +21,6 @@ import net.remoteoperation.view.listener.IntAliasReadOnly;
 import net.remoteoperation.view.listener.IntAliasWritable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by nathav63 on 6/21/15.
@@ -96,7 +95,6 @@ public class MainView extends LinearLayout {
     }
 
     private boolean populateForIndex(int index) {
-        HashMap<String, String> aliasTypes = new HashMap<>();
         ArrayList<String> orderedKeys = new ArrayList<>();
 
         this.index = index;
@@ -112,7 +110,6 @@ public class MainView extends LinearLayout {
             if(type.equals("") || permissions.equals("") || title.equals("") || alias.equals(""))
                 return false;
 
-            aliasTypes.put(alias, type);
             orderedKeys.add(alias);
 
             AliasItem item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
@@ -147,7 +144,7 @@ public class MainView extends LinearLayout {
 
         refreshViews();
 
-        exositeUtil = new ExositeUtil(getContext(), index, aliasTypes, orderedKeys, this);
+        exositeUtil = new ExositeUtil(getContext(), index, orderedKeys, this);
         exositeUtil.updateItems();
         return true;
     }

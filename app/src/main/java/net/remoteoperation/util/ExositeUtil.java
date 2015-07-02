@@ -1,20 +1,21 @@
 package net.remoteoperation.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
+import net.remoteoperation.util.Onep.ClientOnep;
+import net.remoteoperation.util.Onep.DataportDescription;
+import net.remoteoperation.util.Onep.OneException;
+import net.remoteoperation.util.Onep.Result;
 import net.remoteoperation.view.MainView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Created by nathav63 on 6/24/15.
@@ -25,24 +26,22 @@ public class ExositeUtil {
     private int index;
     private String CIK;
     private ArrayList<String> aliases;
-    private HashMap<String, String> aliasTypes;
-    private SharedPreferences prefs;
     private MainView mainView;
+    private ClientOnep onep;
 
 
-    public ExositeUtil(Context context, int index, HashMap<String, String> aliasTypes,
-                       ArrayList<String> orderedKeys, MainView mainView) {
+    public ExositeUtil(Context context, int index, ArrayList<String> orderedKeys, MainView mainView) {
         this.context = context;
         this.index = index;
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.CIK = Prefs.getCIK(index);
         if(CIK.equals("")) {
             throw new RuntimeException("null cik");
         }
 
-        this.aliasTypes = aliasTypes;
         this.aliases = orderedKeys;
         this.mainView = mainView;
+
+        onep = new ClientOnep("http://m2.exosite.com/api:v1/rpc/process", 3, CIK);
     }
 
     public void updateItems() {
@@ -50,12 +49,15 @@ public class ExositeUtil {
     }
 
     public void commitItems() {
-        String[] values = new String[aliases.size() * 2];
-        for(int i = 0; i < aliases.size(); i++) {
-            values[i*2] = aliases.get(i);
-            values[i*2+1] = prefs.getString("value" + i + " " + index, "");
-        }
-        new WriteTask().execute(values);
+        new WriteTask().execute();
+    }
+
+    public void createDataport(String alias) {
+        new CreateDataport().execute("string", alias);
+    }
+
+    public void deleteDataport(String alias) {
+        new DeleteDataport().execute(alias);
     }
 
     public void callback() {
@@ -67,53 +69,20 @@ public class ExositeUtil {
     }
 
     class ReadTask extends AsyncTask<Void, Integer, ArrayList<Result>> {
-        private static final String TAG = "ReadTask";
         private Exception exception;
         protected ArrayList<Result> doInBackground(Void... params) {
-            exception = null;
-            // call to OneP
-            OnePlatformRPC rpc = new OnePlatformRPC();
-            String responseBody = null;
-            try {
-                String requestBody = "{\"auth\":{\"cik\":\"" + CIK
-                        + "\"},\"calls\":[";
-                for (String alias: aliases) {
-                    requestBody += "{\"id\":\"" + alias + "\",\"procedure\":\"read\","
-                            + "\"arguments\":[{\"alias\":\"" + alias + "\"},"
-                            + "{\"limit\":1,\"sort\":\"desc\"}]}";
-                    if (alias != aliases.get(aliases.size() - 1)) {
-                        requestBody += ',';
-                    }
-                }
-                requestBody += "]}";
-                Log.v(TAG, requestBody);
-                // do this just to check for JSON parse errors on client side
-                // while debugging. it can be removed for production.
-                JSONObject jo = new JSONObject(requestBody);
-                responseBody = rpc.callRPC(requestBody);
-
-                Log.v(TAG, responseBody);
-            } catch (JSONException e) {
-                this.exception = e;
-                Log.e(TAG, "Caught JSONException before sending request. Message:" + e.getMessage());
-            } catch (HttpRPCRequestException e) {
-                this.exception = e;
-                Log.e(TAG, "Caught HttpRPCRequestException " + e.getMessage());
-            } catch (HttpRPCResponseException e) {
-                this.exception = e;
-                Log.e(TAG, "Caught HttpRPCResponseException " + e.getMessage());
-            }
-
-            if (responseBody != null) {
+            for(int i = 0; i < aliases.size(); i++) {
                 try {
-                    ArrayList<Result> results = rpc.parseResponses(responseBody);
-                    return results;
-                } catch (OnePlatformException e) {
-                    this.exception = e;
-                    Log.e(TAG, "Caught OnePlatformException " + e.getMessage());
-                } catch (JSONException e) {
-                    this.exception = e;
-                    Log.e(TAG, "Caught JSONException " + e.getMessage());
+                    net.remoteoperation.util.Onep.Result res = onep.read(aliases.get(i));
+                    if (res.getStatus().equals(Result.OK)) {
+                        String read = res.getMessage();
+                        JSONArray dataarr = (JSONArray) JSONValue.parse(read);
+                        JSONArray data1 = (JSONArray) dataarr.get(0);
+                        Prefs.putValue("" + data1.get(1), i, index);
+                    }
+
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
             }
             return null;
@@ -122,107 +91,67 @@ public class ExositeUtil {
         // this is executed on UI thread when doInBackground
         // returns a result
         protected void onPostExecute(ArrayList<Result> results) {
-            final SharedPreferences.Editor editor = prefs.edit();
-            boolean hasError = false;
-            if (results != null) {
-                for(int i = 0; i < results.size(); i++) {
-                    Result result = results.get(i);
-                    String alias = aliases.get(i);
-                    if (result.getResult() instanceof JSONArray) {
-                        try {
-                            JSONArray points = ((JSONArray)result.getResult());
-                            if (points.length() > 0) {
-                                JSONArray point = points.getJSONArray(0);
-                                String value = null;
-                                if(aliasTypes.get(alias).equals("int")) {
-                                    value = String.valueOf(point.getInt(1));
-                                } else if(aliasTypes.get(alias).equals("float")) {
-                                    value = String.valueOf(point.getDouble(1));
-                                } else {
-                                    postErrorMessage("Error processing aliases: " + aliasTypes.get(alias));
-                                }
-                                if(value != null) {
-                                    editor.putString("value" + i + " " + index, value);
-                                }
-                            } else {
-                                hasError = true;
-                                postErrorMessage("Error processing aliases");
-                            }
-                        } catch (JSONException e) {
-                            Log.e(TAG, "JSONException getting the result: " + e.getMessage());
-                        }
-                    } else {
-                        Log.e(TAG, result.getStatus() + ' ' + result.getResult().toString());
-                    }
-                }
-                editor.commit();
-                callback();
-
-            } else {
-                Log.e(TAG, "null result in ReadTask.onPostExecute()");
-                if (this.exception instanceof OnePlatformException) {
-                    postErrorMessage("Received error from platform");
-                } else {
-                    postErrorMessage("Unable to connect to platform");
-                }
-            }
+            callback();
         }
     }
 
     class WriteTask extends AsyncTask<String[], Integer, ArrayList<Result>> {
-        private static final String TAG = "WriteTask";
 
-        protected ArrayList<Result> doInBackground(String[]... valueses) {
-            assert(valueses.length == 1);
-            String[] values = valueses[0];
-            OnePlatformRPC rpc = new OnePlatformRPC();
-            String responseBody = null;
-            try {
-                String requestBody = "{\"auth\":{\"cik\":\"" + CIK
-                        + "\"},\"calls\":[";
-                for (int i = 0; i < values.length; i += 2) {
-                    String alias = values[i];
-                    requestBody += "{\"id\":\"" + alias + "\",\"procedure\":\"write\","
-                            + "\"arguments\":[{\"alias\":\"" + alias + "\"},"
-                            + "\"" + values[i + 1] + "\"]}";
-                    // are we pointing to the last alias?
-                    if (i != values.length - 2) {
-                        requestBody += ',';
-                    }
-                }
-                requestBody += "]}";
-                Log.d(TAG, requestBody);
-                // do this just to check for JSON parse errors on client side
-                // while debugging. it can be removed for production.
-                JSONObject jo = new JSONObject(requestBody);
-                responseBody = rpc.callRPC(requestBody);
-
-                Log.d(TAG, responseBody);
-            } catch (JSONException e) {
-                Log.e(TAG, "Caught JSONException before sending request. Message:" + e.getMessage());
-            } catch (HttpRPCRequestException e) {
-                Log.e(TAG, "Caught HttpRPCRequestException " + e.getMessage());
-            } catch (HttpRPCResponseException e) {
-                Log.e(TAG, "Caught HttpRPCResponseException " + e.getMessage());
-            }
-
-            if (responseBody != null) {
+        protected ArrayList<Result> doInBackground(String[]... values) {
+            boolean fail = false;
+            for(int i = 0; i < aliases.size(); i++) {
                 try {
-                    ArrayList<Result> results = rpc.parseResponses(responseBody);
-                    return results;
-                } catch (OnePlatformException e) {
-                    Log.e(TAG, "Caught OnePlatformException " + e.getMessage());
-                } catch (JSONException e) {
-                    Log.e(TAG, "Caught JSONException " + e.getMessage());
+                    if ( ! onep.write(aliases.get(i), Prefs.getValue(i, index)).getStatus().equals(Result.OK)) {
+                        fail = true;
+                    }
+                } catch (OneException e) {
+                    System.out.println(e.getMessage());
                 }
+            }
+            if(fail) {
+                System.out.println("Something bad happened.");
             }
             return null;
         }
+    }
 
-        // this is executed on UI thread when doInBackground
-        // returns a result
-        protected void onPostExecute(ArrayList<Result> results) {
-            //mDevice.setWriteInProgress(false);
+
+    class CreateDataport extends AsyncTask<String, Integer, ArrayList<Result>> {
+
+        protected ArrayList<Result> doInBackground(String... values) {
+            String type = values[0];
+            String alias = values[1];
+            DataportDescription desc = new DataportDescription(type);
+            desc.setName(alias);
+            desc.retention.setCount(10);
+            desc.retention.setDuration("infinity");
+            LinkedList<Object> p1= new LinkedList<>();
+            p1.add("div");
+            p1.add(2);
+            desc.preprocess.add(p1);
+            try {
+                onep.create(alias, desc);
+            } catch (OneException e) {
+                System.out.println(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+    class DeleteDataport extends AsyncTask<String, Integer, ArrayList<Result>> {
+
+        protected ArrayList<Result> doInBackground(String... values) {
+            String alias = values[0];
+            try {
+                net.remoteoperation.util.Onep.Result res = onep.lookup(CIK, "alias", alias);
+                if (res.getStatus().equals(Result.OK)){
+                    String rid = res.getMessage();
+                    onep.drop(CIK, rid);
+                }
+            } catch (OneException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 
