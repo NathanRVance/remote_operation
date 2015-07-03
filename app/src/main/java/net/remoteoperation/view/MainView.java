@@ -15,6 +15,7 @@ import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeUtil;
 import net.remoteoperation.util.Prefs;
 import net.remoteoperation.view.adapter.MainListAdapter;
+import net.remoteoperation.view.listener.AddItem;
 import net.remoteoperation.view.listener.FloatAliasReadOnly;
 import net.remoteoperation.view.listener.FloatAliasWritable;
 import net.remoteoperation.view.listener.IntAliasReadOnly;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 public class MainView extends LinearLayout {
 
     private int selection = 0;
-    private ArrayList<AliasItem> items;
+    private ArrayList<ListItem> items;
     private int index;
     private ExositeUtil exositeUtil;
 
@@ -112,7 +113,7 @@ public class MainView extends LinearLayout {
 
             orderedKeys.add(alias);
 
-            AliasItem item = (AliasItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
+            ListItem item = (ListItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
 
             if(type.equals("int")) {
                 if(permissions.equals("r")) {
@@ -135,16 +136,19 @@ public class MainView extends LinearLayout {
             items.add(item);
         }
 
+        exositeUtil = new ExositeUtil(getContext(), index, orderedKeys, this);
+
         ListView listView = new ListView(getContext());
-        AliasItem[] aliases = new AliasItem[items.size()];
-        MainListAdapter adapter = new MainListAdapter(getContext(), items.toArray(aliases));
+        ListItem[] aliases = new ListItem[items.size() + 1];
+        aliases = items.toArray(aliases);
+        aliases[aliases.length - 1] = getAddItem();
+        MainListAdapter adapter = new MainListAdapter(getContext(), aliases);
         listView.setAdapter(adapter);
 
         addView(listView);
 
         refreshViews();
 
-        exositeUtil = new ExositeUtil(getContext(), index, orderedKeys, this);
         exositeUtil.updateItems();
         return true;
     }
@@ -162,6 +166,13 @@ public class MainView extends LinearLayout {
 
     public ExositeUtil getExositeUtil() {
         return exositeUtil;
+    }
+
+    private ListItem getAddItem() {
+        ListItem addItem = (ListItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
+        addItem.setOnClickListener(new AddItem(exositeUtil));
+        addItem.setTitle("Add New Setting");
+        return addItem;
     }
 
 }

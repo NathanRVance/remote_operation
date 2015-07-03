@@ -2,7 +2,7 @@ package net.remoteoperation.view.listener;
 
 import android.view.View;
 
-import net.remoteoperation.view.AliasItem;
+import net.remoteoperation.view.ListItem;
 import net.remoteoperation.view.NumberPickerDialog;
 
 /**
@@ -10,12 +10,12 @@ import net.remoteoperation.view.NumberPickerDialog;
  */
 public class IntAliasWritable implements NumberPickerDialog.OnNumberSetListener, View.OnClickListener {
 
-    AliasItem item;
+    ListItem item;
 
     @Override
     public void onClick(View v) {
-        this.item = (AliasItem) v;
-        if (!item.value.equals(AliasItem.ERROR_MESSAGE))
+        this.item = (ListItem) v;
+        if (!item.value.equals(ListItem.ERROR_MESSAGE))
             new NumberPickerDialog(item.getContext(),
                     IntAliasWritable.this, Integer.parseInt(item.value),
                     0, Integer.parseInt(item.value) + 1000,

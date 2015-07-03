@@ -2,7 +2,7 @@ package net.remoteoperation.view.listener;
 
 import android.view.View;
 
-import net.remoteoperation.view.AliasItem;
+import net.remoteoperation.view.ListItem;
 import net.remoteoperation.view.FloatEnterDialog;
 
 /**
@@ -10,12 +10,12 @@ import net.remoteoperation.view.FloatEnterDialog;
  */
 public class FloatAliasWritable implements FloatEnterDialog.OnNumberSetListener, View.OnClickListener {
 
-    AliasItem item;
+    ListItem item;
 
     @Override
     public void onClick(View v) {
-        this.item = (AliasItem) v;
-        if (!item.value.equals(AliasItem.ERROR_MESSAGE))
+        this.item = (ListItem) v;
+        if (!item.value.equals(ListItem.ERROR_MESSAGE))
             new FloatEnterDialog(item.getContext(), FloatAliasWritable.this,
                     Float.parseFloat(item.value), item.title).show();
     }

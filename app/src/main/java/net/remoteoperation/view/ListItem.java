@@ -11,7 +11,7 @@ import net.remoteoperation.util.Prefs;
 /**
  * Created by nathav63 on 6/23/15.
  */
-public class AliasItem extends LinearLayout {
+public class ListItem extends LinearLayout {
 
     public String title;
     public String alias;
@@ -20,15 +20,15 @@ public class AliasItem extends LinearLayout {
 
     public final static String ERROR_MESSAGE = "ERROR: Uninitialized on server side";
 
-    public AliasItem(Context context) {
+    public ListItem(Context context) {
         super(context);
     }
 
-    public AliasItem(Context context, AttributeSet attrs) {
+    public ListItem(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public AliasItem(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ListItem(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

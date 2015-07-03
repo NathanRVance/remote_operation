@@ -87,6 +87,7 @@ public class FloatEnterDialog extends AlertDialog implements OnClickListener {
         mEditText.setText(String.valueOf(number));
     }
 
+    @Override
     public void onClick(DialogInterface dialog, int which) {
         if (mCallback != null) {
             mEditText.clearFocus();
