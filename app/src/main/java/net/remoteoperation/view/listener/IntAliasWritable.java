@@ -3,7 +3,7 @@ package net.remoteoperation.view.listener;
 import android.view.View;
 
 import net.remoteoperation.view.ListItem;
-import net.remoteoperation.view.NumberPickerDialog;
+import net.remoteoperation.view.dialog.NumberPickerDialog;
 
 /**
  * Created by nathav63 on 6/23/15.

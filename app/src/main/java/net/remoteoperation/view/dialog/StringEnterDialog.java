@@ -1,4 +1,4 @@
-package net.remoteoperation.view;
+package net.remoteoperation.view.dialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -31,28 +31,14 @@ public class StringEnterDialog extends AlertDialog implements OnClickListener {
 
     /**
      * @param context Parent.
-     * @param callBack How parent string notified.
-     * @param string The initial number.
-     */
-    public StringEnterDialog(Context context,
-                             OnStringSetListener callBack,
-                             String string,
-                             String title) {
-        this(context, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, callBack, string, title);
-    }
-
-    /**
-     * @param context Parent.
-     * @param theme the theme to apply to this dialog
      * @param callBack How parent is notified.
      * @param string The initial string.
      */
     public StringEnterDialog(Context context,
-                             int theme,
                              OnStringSetListener callBack,
                              String string,
                              String title) {
-        super(context, theme);
+        super(context);
         mCallback = callBack;
 
         setTitle(title);

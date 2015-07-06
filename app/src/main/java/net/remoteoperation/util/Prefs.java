@@ -79,15 +79,25 @@ public class Prefs {
         putString(value, "value", index, CIKIndex);
     }
 
-    public static void deleteCIK(int index) {
-        putCIK("", index);
-        putCIKTitle("", index);
-        for(int i = 0; ! getString("type", i, index).equals(""); i++) {
-            putType("", i, index);
-            putPermissions("", i, index);
-            putAlias("", i, index);
-            putName("", i, index);
-            putValue("", i, index);
+    public static void deleteCIK(int CIKIndex) {
+        putCIK("", CIKIndex);
+        putCIKTitle("", CIKIndex);
+        for(int index = 0; ! getAlias(index, CIKIndex).equals(""); index++) {
+            putType("", index, CIKIndex);
+            putPermissions("", index, CIKIndex);
+            putAlias("", index, CIKIndex);
+            putName("", index, CIKIndex);
+            putValue("", index, CIKIndex);
+        }
+    }
+
+    public static void deleteAlias(int index, int CIKIndex) {
+        for(; ! getAlias(index, CIKIndex).equals(""); index++) {
+            putType(getType(index + 1, CIKIndex), index, CIKIndex);
+            putPermissions(getPermissions(index + 1, CIKIndex), index, CIKIndex);
+            putAlias(getAlias(index + 1, CIKIndex), index, CIKIndex);
+            putName(getName(index + 1, CIKIndex), index, CIKIndex);
+            putValue(getValue(index + 1, CIKIndex), index, CIKIndex);
         }
     }
 

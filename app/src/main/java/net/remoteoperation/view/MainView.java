@@ -15,7 +15,7 @@ import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeUtil;
 import net.remoteoperation.util.Prefs;
 import net.remoteoperation.view.adapter.MainListAdapter;
-import net.remoteoperation.view.listener.AddItem;
+import net.remoteoperation.view.listener.AddListener;
 import net.remoteoperation.view.listener.FloatAliasReadOnly;
 import net.remoteoperation.view.listener.FloatAliasWritable;
 import net.remoteoperation.view.listener.IntAliasReadOnly;
@@ -48,6 +48,10 @@ public class MainView extends LinearLayout {
     }
 
     public void initView() {
+        reload(0);
+    }
+
+    public void reload(int CIKIndex) {
         removeAllViews();
 
         ArrayList<String> cik = new ArrayList<>();
@@ -71,13 +75,12 @@ public class MainView extends LinearLayout {
                 public void onNothingSelected(AdapterView<?> parent) {
                     removeAllViews();
                     addView(spinner);
-                    System.out.println("Nothing selected.");
                 }
             });
 
             removeAllViews();
             addView(spinner);
-            populateForIndex((selection < cik.size())? selection : cik.size()-1);
+            populateForIndex(CIKIndex);
 
         } else if(cik.size() == 1) {
 
@@ -131,12 +134,17 @@ public class MainView extends LinearLayout {
 
             item.setTitle(title);
             item.setAlias(alias);
-            item.setIndex(index);
+            item.setCIKIndex(index);
 
             items.add(item);
         }
 
         exositeUtil = new ExositeUtil(getContext(), index, orderedKeys, this);
+
+        for(ListItem item : items) {
+            item.setExositeUtil(exositeUtil);
+            item.setMainView(this);
+        }
 
         ListView listView = new ListView(getContext());
         ListItem[] aliases = new ListItem[items.size() + 1];
@@ -170,8 +178,9 @@ public class MainView extends LinearLayout {
 
     private ListItem getAddItem() {
         ListItem addItem = (ListItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
-        addItem.setOnClickListener(new AddItem(exositeUtil));
+        addItem.setOnClickListener(new AddListener(exositeUtil));
         addItem.setTitle("Add New Setting");
+        addItem.setHideDelete(true);
         return addItem;
     }
 

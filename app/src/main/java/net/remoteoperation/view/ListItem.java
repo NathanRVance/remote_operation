@@ -6,7 +6,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
+import net.remoteoperation.util.ExositeUtil;
 import net.remoteoperation.util.Prefs;
+import net.remoteoperation.view.listener.DeleteListener;
 
 /**
  * Created by nathav63 on 6/23/15.
@@ -16,7 +18,9 @@ public class ListItem extends LinearLayout {
     public String title;
     public String alias;
     public String value;
-    public int index;
+    public int CIKIndex;
+    public ExositeUtil exositeUtil;
+    public MainView mainView;
 
     public final static String ERROR_MESSAGE = "ERROR: Uninitialized on server side";
 
@@ -36,18 +40,24 @@ public class ListItem extends LinearLayout {
         this.title = title;
 
         TextView titleView = (TextView) findViewById(R.id.title);
-        if(titleView != null) titleView.setText(title);
+        if (titleView != null) titleView.setText(title);
     }
 
     public void setAlias(String alias) {
         this.alias = alias;
     }
-    public void setIndex(int index) {
-        this.index = index;
+
+    public void setCIKIndex(int CIKIndex) {
+        this.CIKIndex = CIKIndex;
+    }
+
+    public void setExositeUtil(ExositeUtil exositeUtil) {
+        this.exositeUtil = exositeUtil;
+        setOnClickListener(new DeleteListener(this, exositeUtil));
     }
 
     public void setValue(String value) {
-        if(value.equals(""))
+        if (value.equals(""))
             this.value = ERROR_MESSAGE;
         else
             this.value = value;
@@ -57,13 +67,39 @@ public class ListItem extends LinearLayout {
         saveValue();
     }
 
+    public void setMainView(MainView mainView) {
+        this.mainView = mainView;
+    }
+
     protected void saveValue() {
-        if(! value.equals(ERROR_MESSAGE)) {
-            int i;
-            for (i = 0; !Prefs.getAlias(i, index).equals(""); i++) {
-                if(Prefs.getAlias(i, index).equals(alias))
-                    Prefs.putValue(value, i, index);
-            }
+        int index = getIndex();
+        if (index != -1 && !value.equals(ERROR_MESSAGE)) {
+            Prefs.putValue(value, index, CIKIndex);
+        }
+    }
+
+    public int getIndex() {
+        for (int i = 0; !Prefs.getAlias(i, CIKIndex).equals(""); i++) {
+            if (Prefs.getAlias(i, CIKIndex).equals(alias))
+                return i;
+        }
+        return -1;
+    }
+
+    public void setHideDelete(boolean hide) {
+        if(hide) {
+            findViewById(R.id.delete).setVisibility(GONE);
+        } else {
+            findViewById(R.id.delete).setVisibility(VISIBLE);
+        }
+    }
+
+    @Override
+    public void setOnClickListener(OnClickListener onClickListener) {
+        if (onClickListener instanceof DeleteListener) {
+            findViewById(R.id.delete).setOnClickListener(onClickListener);
+        } else {
+            super.setOnClickListener(onClickListener);
         }
     }
 }
