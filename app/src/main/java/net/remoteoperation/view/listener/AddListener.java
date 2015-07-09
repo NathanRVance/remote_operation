@@ -2,32 +2,21 @@ package net.remoteoperation.view.listener;
 
 import android.view.View;
 
-import net.remoteoperation.util.ExositeUtil;
-import net.remoteoperation.util.Prefs;
-import net.remoteoperation.view.ListItem;
-import net.remoteoperation.view.dialog.StringEnterDialog;
+import net.remoteoperation.view.MainView;
 
 /**
  * Created by nathav63 on 7/3/15.
  */
-public class AddListener implements StringEnterDialog.OnStringSetListener, View.OnClickListener {
+public class AddListener implements View.OnClickListener {
 
-    ListItem item;
-    ExositeUtil exositeUtil;
+    MainView mainView;
 
-    public AddListener(ExositeUtil exositeUtil) {
-        this.exositeUtil = exositeUtil;
+    public AddListener(MainView mainView) {
+        this.mainView = mainView;
     }
 
     @Override
     public void onClick(View v) {
-        this.item = (ListItem) v;
-        new StringEnterDialog(item.getContext(), AddListener.this,
-                "", item.title).show();
-    }
-
-    @Override
-    public void onStringSet(String string) {
-        exositeUtil.createDataport(string);
+        mainView.add();
     }
 }

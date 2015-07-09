@@ -2,12 +2,11 @@ package net.remoteoperation.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
-import net.remoteoperation.util.ExositeUtil;
-import net.remoteoperation.util.Prefs;
 import net.remoteoperation.view.listener.DeleteListener;
 
 /**
@@ -18,14 +17,14 @@ public class ListItem extends LinearLayout {
     public String title;
     public String alias;
     public String value;
-    public int CIKIndex;
-    public ExositeUtil exositeUtil;
     public MainView mainView;
 
     public final static String ERROR_MESSAGE = "ERROR: Uninitialized on server side";
 
     public ListItem(Context context) {
         super(context);
+        LayoutInflater  mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater.inflate(R.layout.list_item, this, true);
     }
 
     public ListItem(Context context, AttributeSet attrs) {
@@ -43,17 +42,12 @@ public class ListItem extends LinearLayout {
         if (titleView != null) titleView.setText(title);
     }
 
-    public void setAlias(String alias) {
+    public void setAlias(String alias){
         this.alias = alias;
     }
 
-    public void setCIKIndex(int CIKIndex) {
-        this.CIKIndex = CIKIndex;
-    }
-
-    public void setExositeUtil(ExositeUtil exositeUtil) {
-        this.exositeUtil = exositeUtil;
-        setOnClickListener(new DeleteListener(this, exositeUtil));
+    public void setOnDelete(DeleteListener.OnDelete delete) {
+        setOnClickListener(new DeleteListener(this, delete));
     }
 
     public void setValue(String value) {
@@ -72,18 +66,7 @@ public class ListItem extends LinearLayout {
     }
 
     protected void saveValue() {
-        int index = getIndex();
-        if (index != -1 && !value.equals(ERROR_MESSAGE)) {
-            Prefs.putValue(value, index, CIKIndex);
-        }
-    }
-
-    public int getIndex() {
-        for (int i = 0; !Prefs.getAlias(i, CIKIndex).equals(""); i++) {
-            if (Prefs.getAlias(i, CIKIndex).equals(alias))
-                return i;
-        }
-        return -1;
+        mainView.setValue(alias, value);
     }
 
     public void setHideDelete(boolean hide) {

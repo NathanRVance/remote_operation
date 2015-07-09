@@ -43,14 +43,10 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch(id) {
             case R.id.refresh:
-                mainView.getExositeUtil().updateItems();
+                mainView.reload();
                 return true;
             case R.id.commit:
-                mainView.getExositeUtil().commitItems();
-                return true;
-            case R.id.delete:
-                Prefs.deleteCIK(mainView.getIndex());
-                mainView.initView();
+                mainView.commit();
                 return true;
             default:
                 break;

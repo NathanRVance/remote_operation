@@ -24,40 +24,11 @@ public class ExoParser {
             return false;
         }
 
-        String[] lines = contents.split("\n");
-
-        String[] words = lines[0].split(" ");
-
-        if(words[0].length() != 40) {
+        if(contents.contains(" ")) {
             return false;
         }
 
-        int index;
-        for(index = 0; ! (Prefs.getCIK(index).equals("") || Prefs.getCIK(index).equals(words[0])); index++);
-
-        Prefs.deleteCIK(index); //in case it's a matching CIK and this one will be shorter
-        Prefs.putCIK(words[0], index);
-        StringBuilder sb = new StringBuilder();
-        for(int i = 1; i < words.length; i++) {
-            sb.append(words[i]).append(" ");
-        }
-        sb.deleteCharAt(sb.length()-1);
-        Prefs.putCIKTitle(sb.toString(), index);
-
-        for(int i = 1; i < lines.length; i++)
-        {
-            words = lines[i].split(" ");
-            Prefs.putType(words[0], (i-1), index);
-            Prefs.putPermissions(words[1], (i-1), index);
-            Prefs.putAlias(words[2], (i-1), index);
-            sb = new StringBuilder();
-            for(int j = 3; j < words.length; j++) {
-                sb.append(words[j]).append(" ");
-            }
-            sb.deleteCharAt(sb.length()-1);
-            Prefs.putName(sb.toString(), (i-1), index);
-        }
-
+        Prefs.putCIK(contents.split("\n")[0]);
         return true;
     }
 

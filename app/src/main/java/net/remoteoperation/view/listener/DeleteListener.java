@@ -13,11 +13,11 @@ import net.remoteoperation.view.dialog.ConfirmationDialog;
 public class DeleteListener implements ConfirmationDialog.OnConfirmListener, View.OnClickListener {
 
     ListItem item;
-    ExositeUtil exositeUtil;
+    OnDelete delete;
 
-    public DeleteListener(ListItem item, ExositeUtil exositeUtil) {
+    public DeleteListener(ListItem item, OnDelete delete) {
         this.item = item;
-        this.exositeUtil = exositeUtil;
+        this.delete = delete;
     }
 
     @Override
@@ -27,8 +27,10 @@ public class DeleteListener implements ConfirmationDialog.OnConfirmListener, Vie
 
     @Override
     public void onConfirm() {
-        exositeUtil.deleteDataport(item.alias);
-        Prefs.deleteAlias(item.getIndex(), item.CIKIndex);
-        item.mainView.reload(item.CIKIndex);
+        delete.onDelete(item);
+    }
+
+    public interface OnDelete {
+        void onDelete(ListItem item);
     }
 }

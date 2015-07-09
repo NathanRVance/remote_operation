@@ -2,186 +2,83 @@ package net.remoteoperation.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import net.remoteoperation.R;
-import net.remoteoperation.util.ExositeUtil;
+import net.remoteoperation.util.ExositeController;
 import net.remoteoperation.util.Prefs;
 import net.remoteoperation.view.adapter.MainListAdapter;
-import net.remoteoperation.view.listener.AddListener;
-import net.remoteoperation.view.listener.FloatAliasReadOnly;
-import net.remoteoperation.view.listener.FloatAliasWritable;
-import net.remoteoperation.view.listener.IntAliasReadOnly;
-import net.remoteoperation.view.listener.IntAliasWritable;
+import net.remoteoperation.view.listener.DeleteListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by nathav63 on 6/21/15.
  */
-public class MainView extends LinearLayout {
+public class MainView extends LinearLayout implements DeleteListener.OnDelete {
 
-    private int selection = 0;
-    private ArrayList<ListItem> items;
-    private int index;
-    private ExositeUtil exositeUtil;
+    private ExositeController exositeController;
+    private boolean isEmpty = false;
 
     private static final int TITLE_SIZE = 20;
 
     public MainView(Context context) {
         super(context);
+        initView();
     }
 
     public MainView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initView();
     }
 
     public MainView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initView();
     }
 
     public void initView() {
-        reload(0);
+        reload();
     }
 
-    public void reload(int CIKIndex) {
-        removeAllViews();
-
-        ArrayList<String> cik = new ArrayList<>();
-        for(int i = 0; ! Prefs.getCIKTitle(i).equals(""); i++) {
-            cik.add(Prefs.getCIKTitle(i));
-        }
-
-        if(cik.size() > 1) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, cik);
-            final Spinner spinner = new Spinner(getContext());
-            spinner.setAdapter(adapter);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    removeAllViews();
-                    addView(spinner);
-                    populateForIndex(selection = position);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    removeAllViews();
-                    addView(spinner);
-                }
-            });
-
-            removeAllViews();
-            addView(spinner);
-            populateForIndex(CIKIndex);
-
-        } else if(cik.size() == 1) {
-
-            TextView textView = new TextView(getContext());
-            textView.setTextSize(TITLE_SIZE);
-            addView(textView);
-            textView.setText(cik.get(0));
-            populateForIndex(selection = 0);
-
-        } else { //empty
+    public void reload() {
+        String cik = Prefs.getCIK();
+        if (isEmpty = cik.isEmpty()) {
             TextView textView = new TextView(getContext());
             textView.setTextSize(TITLE_SIZE);
             addView(textView);
             textView.setText("Import .exo files by opening them with this app!");
+        } else {
+            exositeController = new ExositeController(getContext(), this);
+            exositeController.refresh();
         }
     }
 
-    private boolean populateForIndex(int index) {
-        ArrayList<String> orderedKeys = new ArrayList<>();
+    public void populate(ArrayList<String> aliases, HashMap<String, String> values) {
+        MainListAdapter adapter = new MainListAdapter(getContext(), aliases, values, this);
 
-        this.index = index;
-        items = new ArrayList<>();
-
-        for(int i = 0; ! Prefs.getType(i, index).equals(""); i++) {
-            
-            String type = Prefs.getType(i, index);
-            String permissions = Prefs.getPermissions(i, index);
-            String title = Prefs.getName(i, index);
-            String alias = Prefs.getAlias(i, index);
-
-            if(type.equals("") || permissions.equals("") || title.equals("") || alias.equals(""))
-                return false;
-
-            orderedKeys.add(alias);
-
-            ListItem item = (ListItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
-
-            if(type.equals("int")) {
-                if(permissions.equals("r")) {
-                    item.setOnClickListener(new IntAliasReadOnly());
-                } else if(permissions.equals("w")) {
-                    item.setOnClickListener(new IntAliasWritable());
-                }
-            } else if(type.equals("float")) {
-                if (permissions.equals("r")) {
-                    item.setOnClickListener(new FloatAliasReadOnly());
-                } else if (permissions.equals("w")) {
-                    item.setOnClickListener(new FloatAliasWritable());
-                }
-            }
-
-            item.setTitle(title);
-            item.setAlias(alias);
-            item.setCIKIndex(index);
-
-            items.add(item);
-        }
-
-        exositeUtil = new ExositeUtil(getContext(), index, orderedKeys, this);
-
-        for(ListItem item : items) {
-            item.setExositeUtil(exositeUtil);
-            item.setMainView(this);
-        }
-
-        ListView listView = new ListView(getContext());
-        ListItem[] aliases = new ListItem[items.size() + 1];
-        aliases = items.toArray(aliases);
-        aliases[aliases.length - 1] = getAddItem();
-        MainListAdapter adapter = new MainListAdapter(getContext(), aliases);
+        ListView listView = (ListView) findViewById(R.id.main_list);
         listView.setAdapter(adapter);
-
-        addView(listView);
-
-        refreshViews();
-
-        exositeUtil.updateItems();
-        return true;
     }
 
-    public void refreshViews() {
-        for(int i = 0; i < items.size(); i++) {
-            String value = Prefs.getValue(i, index);
-            items.get(i).setValue(value);
-        }
+    public void commit() {
+        if(! isEmpty)
+            exositeController.commit();
     }
 
-    public int getIndex() {
-        return index;
+    public void setValue(String alias, String value) {
+        exositeController.setValue(alias, value);
     }
 
-    public ExositeUtil getExositeUtil() {
-        return exositeUtil;
+    public void add() {
+        exositeController.add();
     }
 
-    private ListItem getAddItem() {
-        ListItem addItem = (ListItem) LayoutInflater.from(getContext()).inflate(R.layout.alias_item, null, false);
-        addItem.setOnClickListener(new AddListener(exositeUtil));
-        addItem.setTitle("Add New Setting");
-        addItem.setHideDelete(true);
-        return addItem;
+    @Override
+    public void onDelete(ListItem item) {
+        exositeController.delete(item.alias);
     }
-
 }
