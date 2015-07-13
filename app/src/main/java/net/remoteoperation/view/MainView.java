@@ -2,9 +2,11 @@ package net.remoteoperation.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import net.remoteoperation.R;
 import net.remoteoperation.util.ExositeController;
@@ -22,8 +24,6 @@ public class MainView extends LinearLayout implements DeleteListener.OnDelete {
 
     private ExositeController exositeController;
     private boolean isEmpty = false;
-
-    private static final int TITLE_SIZE = 20;
 
     public MainView(Context context) {
         super(context);
@@ -47,10 +47,7 @@ public class MainView extends LinearLayout implements DeleteListener.OnDelete {
     public void reload() {
         String cik = Prefs.getCIK();
         if (isEmpty = cik.isEmpty()) {
-            TextView textView = new TextView(getContext());
-            textView.setTextSize(TITLE_SIZE);
-            addView(textView);
-            textView.setText("Import .exo files by opening them with this app!");
+            onEmptyCIK();
         } else {
             exositeController = new ExositeController(getContext(), this);
             exositeController.refresh();
@@ -61,6 +58,13 @@ public class MainView extends LinearLayout implements DeleteListener.OnDelete {
         MainListAdapter adapter = new MainListAdapter(getContext(), aliases, values, this);
 
         ListView listView = (ListView) findViewById(R.id.main_list);
+        if(listView == null) {
+            removeAllViews();
+            LayoutInflater  inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            inflater.inflate(R.layout.list_view, this, true);
+            listView = (ListView) findViewById(R.id.main_list);
+        }
+
         listView.setAdapter(adapter);
     }
 
@@ -80,5 +84,20 @@ public class MainView extends LinearLayout implements DeleteListener.OnDelete {
     @Override
     public void onDelete(ListItem item) {
         exositeController.delete(item.alias);
+    }
+
+    private void onEmptyCIK() {
+        removeAllViews();
+        LayoutInflater  inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.empty_cik, this, true);
+        final EditText et = (EditText) findViewById(R.id.edit_cik);
+        findViewById(R.id.cik_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String cik = et.getText().toString();
+                Prefs.putCIK(cik);
+                reload();
+            }
+        });
     }
 }

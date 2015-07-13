@@ -4,5 +4,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="empty_cik">Enter CIK below. I would suggest copy/paste ;)</string>
+    <string name="empty_cik_hint">40 character CIK</string>
 
 </resources>
